@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react"; // 1. Tambah useRef
 import {
   motion,
   AnimatePresence,
@@ -16,9 +16,24 @@ export default function Home() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
 
+  // 2. Buat referensi ke video player
+  const videoRef = useRef<HTMLVideoElement>(null);
+
   useEffect(() => {
     setWindowSize({ width: window.innerWidth, height: window.innerHeight });
   }, []);
+
+  // 3. Logic Auto Play: Begitu gateOpen = true, video dimainkan
+  useEffect(() => {
+    if (gateOpen && videoRef.current) {
+      // Delay 1 detik agar transisi halus, lalu play
+      setTimeout(() => {
+        videoRef.current?.play().catch((error) => {
+          console.log("Autoplay blocked:", error);
+        });
+      }, 1000);
+    }
+  }, [gateOpen]);
 
   const { scrollYProgress } = useScroll();
 
@@ -188,19 +203,17 @@ export default function Home() {
 
               {/* VIDEO PLAYER CONTAINER */}
               <div className="relative aspect-video bg-black rounded-2xl overflow-hidden border-4 border-[#FFFDF5] shadow-inner">
-                {/* Ganti src dengan path videomu */}
-                {/* <video controls className="w-full h-full object-cover">
-                   <source src="/video_ulangtahun.mp4" type="video/mp4" />
-                </video> 
-                */}
-
-                {/* Placeholder jika video belum ada */}
-                <div className="flex flex-col items-center justify-center h-full bg-[#FFECB3]/30">
-                  <p className="text-4xl">🎬</p>
-                  <p className="text-[#8D6E63] font-fredoka mt-2">
-                    Video Cover Lagu Disini
-                  </p>
-                </div>
+                {/* 4. VIDEO TAG IMPLEMENTATION */}
+                <video
+                  ref={videoRef}
+                  controls
+                  playsInline
+                  // loop // Uncomment jika ingin video berulang terus
+                  className="w-full h-full object-cover"
+                >
+                  <source src="/video/video.mp4" type="video/mp4" />
+                  Browser kamu tidak mendukung video tag.
+                </video>
               </div>
               <p className="text-center text-[#FF9E80] mt-4 font-fredoka text-sm">
                 *Maaf kalau suaranya pas-pasan ya hehe* ✌️
